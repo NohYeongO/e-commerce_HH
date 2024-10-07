@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ECOMMERCE
+    username: root
+    password: noh05love@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.hibernate.type.descriptor.sql.BasicBinder: info
+    io.hhplus.clean: DEBUG
+
+
