@@ -9,7 +9,7 @@
 ---
 ## **`STEP 05`**
 ## STEP 05_1. Milestone
-<img height="" src="PR/Milestone.png" width="1200"/>
+<img height="" src="../PR/Milestone.png" width="1200"/>
 
 ## 1. 시퀀스 다이어그램 작성 (#1)
 - **기간**: 10월 7일 (월) ~ 10월 8일 (화)
