@@ -2,6 +2,6 @@
 
 ---
 
-### [STEP05 확인](PR/STEP05.md)
+### [STEP05 PR](PR/STEP05.md)
 
-### [STEP06 확인](PR/STEP06.md)
+### [STEP06 PR](PR/STEP06.md)
