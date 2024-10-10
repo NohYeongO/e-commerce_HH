@@ -9,7 +9,8 @@
 ---
 ## **`STEP 05`**
 ## STEP 05_1. Milestone
-<img height="" src="../PR/Milestone.png" width="1200"/>
+
+<img height="" src="Milestone.png" width="1200"/>
 
 ## 1. 시퀀스 다이어그램 작성 (#1)
 - **기간**: 10월 7일 (월) ~ 10월 8일 (화)
@@ -45,6 +46,10 @@
 ## STEP05_2. 시퀀스 다이어그램
 
 ## **`잔액충전/조회 API`**
+
+### 1. **잔액 충전/조회 API**
+- **핵심**: 클라이언트가 회원 ID로 잔액 충전 요청을 보내면, 데이터베이스에서 현재 잔액을 조회하고 충전 금액을 더한 후 최종 잔액을 저장합니다. **트랜잭션**을 사용하여 데이터 일관성을 유지하고, 오류 발생 시 **트랜잭션을 롤백**합니다.
+
 ```mermaid
 sequenceDiagram
     participant Client
@@ -82,6 +87,10 @@ sequenceDiagram
     end
 ```
 ## **`상품조회 API`**
+
+### 2. **상품 조회 API**
+- **핵심**: 클라이언트가 상품 조회 요청을 보내면, 데이터베이스에서 해당 상품의 가격과 재고를 조회하여 반환합니다. 상품이 존재하지 않으면 404 응답을 반환합니다.
+
 ```mermaid
 sequenceDiagram
     participant Client
@@ -109,6 +118,9 @@ sequenceDiagram
     end
 ```
 ## **`주문/결제 API`**
+### 3. **주문/결제 API**
+- **핵심**: 여러 상품을 주문할 때, 각 상품의 **재고에 비관적 락**을 걸어 다른 트랜잭션이 동시에 재고를 수정하지 못하게 합니다. 잔액 확인 후 결제 성공 시 재고와 잔액을 차감하고 주문 정보를 외부 데이터 플랫폼에 전송합니다. 재고나 잔액 부족 시 **트랜잭션 롤백**으로 처리합니다.
+
 ```mermaid
 sequenceDiagram
     participant Client
@@ -159,19 +171,21 @@ sequenceDiagram
     end
 ```    
 ## **`상위 상품 조회 API`**
+### 4. **상위 상품 조회 API**
+- **핵심**: 클라이언트가 상위 5개 상품 조회 요청을 보내면, 최근 3일간 가장 많이 판매된 상위 5개 상품 데이터를 데이터베이스에서 가져와 클라이언트에 반환합니다.
 ```mermaid   
 sequenceDiagram
     participant Client
     participant Presentation Layer
     participant Business Layer
-    participant Data Platform
+    participant DB
 
 
     Client ->> Presentation Layer: 상위 5개 상품 조회 요청
     Presentation Layer ->> Business Layer: 상위 상품 조회 요청
 
-    Business Layer ->> Data Platform: 최근 3일간 판매 상위 5개 데이터 요청
-    Data Platform -->> Business Layer: 상위 5개 상품 판매 데이터 반환
+    Business Layer ->> DB: 최근 3일간 판매 상위 5개 데이터 요청
+    DB -->> Business Layer: 상위 5개 상품 판매 데이터 반환
 
     Business Layer -->> Presentation Layer: 상위 5개 상품 정보 반환
     Presentation Layer -->> Client: 상위 5개 상품 정보 응답
