@@ -5,6 +5,21 @@ spring:
     password: noh05love@
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+# ecommerce 프로파일 설정
+---
+spring:
+  config:
+    activate:
+      on-profile: ecommerce
+server:
+  port: 8080
+
+# swagger 프로파일 설정
+---
+spring:
+  config:
+    activate:
+      on-profile: swagger
 server:
   port: 4000
 
