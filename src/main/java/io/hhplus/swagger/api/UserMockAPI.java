@@ -1,8 +1,7 @@
 package io.hhplus.swagger.api;
 
 
-import io.hhplus.ecommerce.api.user.request.ChargeRequest;
-import io.hhplus.ecommerce.domain.user.UserDto;
+import io.hhplus.swagger.request.ChargeRequest;
 import io.hhplus.swagger.response.UserMockDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,8 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigDecimal;
 
 
 @RestController("/user")
