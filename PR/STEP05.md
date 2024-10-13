@@ -9,6 +9,7 @@
 ---
 ## **`STEP 05`**
 ## STEP 05_1. Milestone
+
 <img height="" src="Milestone.png" width="1200"/>
 
 ## 1. 시퀀스 다이어그램 작성 (#1)
