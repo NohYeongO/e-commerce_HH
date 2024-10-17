@@ -11,7 +11,7 @@
 #### - API 명세 및 Mock API 작성
 #### - 채택할 기본 패키지 구조, 기술 스택
 
-### [DEFAULT & STEP07 `확인하기`](PR/STEP07.md)
+### [DEFAULT & STEP07 `확인하기`](PR/DEFAULT,STEP07.md)
 #### - 비지니스 로직 개발, 단위테스트 작성
 #### - API Swagger기능 구현
 
