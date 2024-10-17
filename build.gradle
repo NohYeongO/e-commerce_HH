@@ -34,6 +34,12 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 }
 
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }

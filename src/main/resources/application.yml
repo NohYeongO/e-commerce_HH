@@ -34,11 +34,11 @@ server:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
     org.hibernate.SQL: debug
     org.hibernate.type: trace
     org.hibernate.type.descriptor.sql.BasicBinder: info
-    io.hhplus.clean: DEBUG
+
 
 springdoc:
   swagger-ui:
