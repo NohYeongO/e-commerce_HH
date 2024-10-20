@@ -6,14 +6,13 @@ import io.hhplus.ecommerce.domain.entity.product.Product;
 import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class FindProductService {
 
     private final ProductJpaRepository productJpaRepository;
 
