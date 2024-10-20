@@ -7,6 +7,8 @@ import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -51,14 +53,21 @@ public class FindProductService {
     }
 
     /**
-     * 판매 상위 5개 상품 조회
+     * 최근 3일간 판매 상위 5개 상품 조회
      */
     public List<ProductDto> getTopFiveProducts() {
-        return productJpaRepository.findTop5Product().stream().map(product -> ProductDto.builder()
-                .productId(product.getProductId())
-                .name(product.getName())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .build()).toList();
+        // 최근 3일의 시작 날짜 계산 00시 기준
+        LocalDateTime startDate = LocalDate.now().minusDays(3).atStartOfDay();
+
+        List<Product> topProducts = productJpaRepository.findTop5Product(startDate);
+
+        return topProducts.stream()
+                .map(product -> ProductDto.builder()
+                        .productId(product.getProductId())
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .stock(product.getStock())
+                        .build())
+                .toList();
     }
 }
