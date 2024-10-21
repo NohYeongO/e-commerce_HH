@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,5 +23,5 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
             "WHERE o.orderDate BETWEEN :startDate AND CURRENT_DATE " +
             "GROUP BY p.productId " +
             "ORDER BY SUM(od.quantity) DESC")
-    List<Product> findTop5Product();
+    List<Product> findTop5Product(LocalDateTime startDate);
 }
