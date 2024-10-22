@@ -17,7 +17,6 @@ public class ProductDto {
     private int stock;
 
     private int quantity;
-    private List<ProductDto> productList;
 
     public Product toEntity(){
         return Product.builder()
