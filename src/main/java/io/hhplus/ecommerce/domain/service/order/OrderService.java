@@ -30,51 +30,29 @@ public class OrderService {
     private final ProductJpaRepository productJpaRepository;
     private final UserJpaRepository userJpaRepository;
 
-    @Transactional
-    public OrderDto orderPayment(UserDto userDto, List<ProductDto> productsDto, List<OrderDetailDto> orderDetails) {
-
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        List<OrderDetail> orderDetailList = new ArrayList<>();
-        for(OrderDetailDto orderDetail : orderDetails) {
-
-            ProductDto productDto = productsDto.stream()
-                    .filter(p -> p.getProductId().equals(orderDetail.getProductId())).findFirst().orElseThrow(() -> new ProductNotFoundException("주문할 수 없는 상품이 포함되어있습니다.", 404));
-
-            Product product = productDto.toEntity();
-
-            // 재고 수량 차감
-            product.deduction(orderDetail.getQuantity());
-
-            // 주문 수량 만큼 곱하기
-            totalPrice = totalPrice.add(product.getPrice().multiply(new BigDecimal(orderDetail.getQuantity())));
-
-            // 상세 주문 내역 생성
-            OrderDetail Detail = OrderDetail.builder()
-                    .product(product)
-                    .quantity(orderDetail.getQuantity())
-                    .build();
-            // 상세주문 내역 리스트 추가
-            orderDetailList.add(Detail);
-            productJpaRepository.saveAndFlush(product);
-        }
+    public OrderDto orderPayment(UserDto userDto, List<OrderDetailDto> orderDetailDtoList) {
 
         User user = userDto.toEntity();
+        // 총 가격을 계산
+        BigDecimal totalPrice = orderDetailDtoList.stream()
+                .map(detail -> detail.getProductDto().getPrice().multiply(new BigDecimal(detail.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Order order = Order.builder()
                 .user(user)
                 .orderDate(LocalDateTime.now())
-                .orderDetails(orderDetailList)
+                .orderDetails(orderDetailDtoList.stream().map(detail -> OrderDetail.builder()
+                        .product(detail.getProductDto().toEntity())
+                        .quantity(detail.getQuantity()).build()).toList()
+                )
                 .build();
-        Order saveOrder = orderJpaRepository.save(order);
-        // 금액 차감
-        user.deduction(totalPrice);
 
-        userJpaRepository.save(user);
+        Order saveOrder = orderJpaRepository.save(order);
 
         return OrderDto.builder()
                 .orderId(saveOrder.getOrderId())
                 .userId(user.getUserId())
-                .orderDetails(orderDetailList.stream()
+                .orderDetails(order.getOrderDetails().stream()
                         .map(od -> OrderDetailDto.builder()
                                 .detailId(od.getDetailId())
                                 .productId(od.getProduct().getProductId())
@@ -82,6 +60,7 @@ public class OrderService {
                                 .build())
                         .collect(Collectors.toList()))
                 .orderDate(saveOrder.getOrderDate())
+                .totalPrice(totalPrice)
                 .build();
     }
 }
