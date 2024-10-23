@@ -37,16 +37,9 @@ public class TransactionFacade {
      * 잔액 충전 / 조회 기능
      */
     public UserDto charge(ChargeRequest request) {
-
         // 기존 회원 잔액 조회
         UserDto userDto = findUserService.getUser(request.getUserId(), true);
-
-        // 충전
-        User user = userDto.toEntity();
-        user.addPoint(request.getPoint());
-
-        // 데이터베이스 저장 요청
-        return chargeUserService.charge(user);
+        return chargeUserService.charge(userDto, request.getPoint());
     }
 
     /**

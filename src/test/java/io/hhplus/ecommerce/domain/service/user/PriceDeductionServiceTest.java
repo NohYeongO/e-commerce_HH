@@ -39,7 +39,7 @@ class PriceDeductionServiceTest {
         BigDecimal initialBalance = BigDecimal.valueOf(5000);
         BigDecimal deductionPoint = BigDecimal.valueOf(1000);
         User user = new User(1L, "testUser", initialBalance);
-        UserDto userDto = new UserDto(1L, "testUser", initialBalance);
+        UserDto userDto = UserDto.builder().userId(1L).name("testUser").point(initialBalance).build();
 
         // when: priceDeduction이 호출되고 잔고가 차감됨
         when(userJpaRepository.save(any(User.class))).thenReturn(user);
@@ -63,7 +63,7 @@ class PriceDeductionServiceTest {
         BigDecimal initialBalance = BigDecimal.valueOf(500);
         BigDecimal deductionAmount = BigDecimal.valueOf(1000);  // 차감하려는 금액이 1000
         User user = new User(1L, "testUser", initialBalance);
-        UserDto userDto = new UserDto(1L, "testUser", initialBalance);
+        UserDto userDto = UserDto.builder().userId(1L).name("testUser").point(initialBalance).build();
 
         // then: 예외가 발생하는지 확인
         assertThatThrownBy(() -> priceDeductionService.priceDeduction(userDto, deductionAmount))
