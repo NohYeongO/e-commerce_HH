@@ -15,7 +15,8 @@ public enum ErrorCode {
     ORDER_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "주문에 실패했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     POINTS_INSUFFICIENT(HttpStatus.BAD_REQUEST, "차감할 포인트가 부족합니다."),
-    POINT_DEDUCTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포인트 차감중 오류 발생");
+    POINT_DEDUCTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "포인트 차감중 오류 발생"),
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니에 상품이 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

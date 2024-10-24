@@ -1,8 +1,6 @@
 package io.hhplus.ecommerce.common;
 
 import io.hhplus.ecommerce.common.exception.*;
-import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
-import io.hhplus.ecommerce.common.exception.user.UserNotFoundException;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +37,11 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ChargeFailedException.class)
     public ResponseEntity<ErrorMessage> handleChargeFailedException(ChargeFailedException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
+    }
+
+    @ExceptionHandler(CartOperationException.class)
+    public ResponseEntity<ErrorMessage> handleCartOperationException(CartOperationException e) {
         return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
     }
 

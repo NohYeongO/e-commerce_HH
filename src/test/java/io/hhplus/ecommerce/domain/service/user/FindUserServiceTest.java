@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.domain.service.user;
 
-import io.hhplus.ecommerce.common.exception.user.UserNotFoundException;
+import io.hhplus.ecommerce.common.exception.ResourceNotFoundException;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
 import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.infra.user.UserJpaRepository;
@@ -38,8 +38,8 @@ class FindUserServiceTest {
         when(userJpaRepository.findById(1L)).thenReturn(Optional.empty());
         when(userJpaRepository.findByIdWithLock(1L)).thenReturn(Optional.empty());
         // then
-        assertThrows(UserNotFoundException.class, () -> findUserService.getUser(userId, false));
-        assertThrows(UserNotFoundException.class, () -> findUserService.getUser(userId, true));
+        assertThrows(ResourceNotFoundException.class, () -> findUserService.getUser(userId, false));
+        assertThrows(ResourceNotFoundException.class, () -> findUserService.getUser(userId, true));
     }
 
     @Test
