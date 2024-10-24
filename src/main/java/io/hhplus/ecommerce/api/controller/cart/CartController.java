@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/cart")
+@RestController
+@RequestMapping("/cart")
 @RequiredArgsConstructor
 public class CartController {
 
