@@ -1,6 +1,6 @@
 package io.hhplus.ecommerce.api.controller.product;
 
-import io.hhplus.ecommerce.application.facade.QueryFacade;
+import io.hhplus.ecommerce.application.facade.ProductFacade;
 import io.hhplus.ecommerce.application.dto.product.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +14,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final QueryFacade queryFacade;
+    private final ProductFacade productFacade;
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable("id") Long productId) {
-        return ResponseEntity.ok(queryFacade.getProduct(productId));
+        return ResponseEntity.ok(productFacade.getProduct(productId));
     }
 
     @GetMapping("/top5")
     public ResponseEntity<List<ProductDto>> getTop5Products() {
-        return ResponseEntity.ok(queryFacade.getTopFiveProducts());
+        return ResponseEntity.ok(productFacade.getTopFiveProducts());
     }
 
 }

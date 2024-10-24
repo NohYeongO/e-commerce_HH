@@ -1,6 +1,7 @@
 package io.hhplus.ecommerce.domain.entity.product;
 
-import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
+import io.hhplus.ecommerce.common.exception.ErrorCode;
+import io.hhplus.ecommerce.common.exception.StockInsufficientException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,7 +37,7 @@ public class Product {
 
     public void deduction(int quantity){
         if(this.stock < quantity){
-            throw new ProductNotFoundException("재고가 부족합니다.", 200);
+            throw new StockInsufficientException(ErrorCode.PRODUCT_INSUFFICIENT_STOCK);
         }
         this.stock -= quantity;
     }

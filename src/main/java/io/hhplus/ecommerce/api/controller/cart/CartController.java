@@ -19,7 +19,8 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<String> addCart(@RequestBody CartDto cartDto) {
         cartFacade.addCart(cartDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Product added to cart successfully.");
+        return ResponseEntity.ok("Product added to cart successfully.");
+        // Body 한글 작성 할려다가 gpt 번역 사용했습니다...
     }
 
     // 장바구니 상품 삭제 API

@@ -1,6 +1,7 @@
 package io.hhplus.ecommerce.domain.service.user;
 
 import io.hhplus.ecommerce.application.dto.user.UserDto;
+import io.hhplus.ecommerce.common.exception.PointInsufficientException;
 import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.infra.user.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,16 +34,13 @@ class PriceDeductionServiceTest {
     }
 
     @Test
-    @DisplayName("잔고가 충분할 때 정상적으로 차감")
+    @DisplayName("잔고가 충분할 때 정상적으로 차감되는지 테스트")
     void priceDeductionSuccess() {
         // given: 초기 잔고가 5000인 사용자
         BigDecimal initialBalance = BigDecimal.valueOf(5000);
         BigDecimal deductionPoint = BigDecimal.valueOf(1000);
         User user = new User(1L, "testUser", initialBalance);
-        UserDto userDto = new UserDto(1L, "testUser", initialBalance);
-
-        // when: priceDeduction이 호출되고 잔고가 차감됨
-        when(userJpaRepository.save(any(User.class))).thenReturn(user);
+        UserDto userDto = UserDto.builder().userId(1L).name("testUser").point(initialBalance).build();
 
         // 실제 테스트 실행
         priceDeductionService.priceDeduction(userDto, deductionPoint);
@@ -57,19 +55,16 @@ class PriceDeductionServiceTest {
     }
 
     @Test
-    @DisplayName("잔고가 부족할 때 IllegalArgumentException이 발생")
-    void insufficientBalanceThrowsException() {
+    @DisplayName("잔고가 부족할 때 PointInsufficientException 발생 테스트")
+    void pointInsufficientException_Test() {
         // given: 차감할 잔고보다 적은 초기 잔고 (500원)
         BigDecimal initialBalance = BigDecimal.valueOf(500);
-        BigDecimal deductionAmount = BigDecimal.valueOf(1000);  // 차감하려는 금액이 1000
+        BigDecimal deductionPoint = BigDecimal.valueOf(1000);  // 차감하려는 금액이 1000
         User user = new User(1L, "testUser", initialBalance);
-        UserDto userDto = new UserDto(1L, "testUser", initialBalance);
+        UserDto userDto = UserDto.builder().userId(1L).name("testUser").point(initialBalance).build();
 
         // then: 예외가 발생하는지 확인
-        assertThatThrownBy(() -> priceDeductionService.priceDeduction(userDto, deductionAmount))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("포인트가 부족합니다.");
-
+        assertThrows(PointInsufficientException.class, () -> priceDeductionService.priceDeduction(userDto, deductionPoint));
         // 잔고 부족으로 save가 호출되지 않는지 확인
         verify(userJpaRepository, never()).save(any(User.class));
     }

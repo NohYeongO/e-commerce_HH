@@ -1,7 +1,7 @@
 package io.hhplus.ecommerce.api.controller.user;
 
 import io.hhplus.ecommerce.api.request.ChargeRequest;
-import io.hhplus.ecommerce.application.facade.TransactionFacade;
+import io.hhplus.ecommerce.application.facade.PaymentFacade;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final TransactionFacade transactionFacade;
+    private final PaymentFacade paymentFacade;
 
     /**
      * 잔액 충전 / 조회 API
@@ -21,7 +21,7 @@ public class UserController {
     @PostMapping("/charge")
     public ResponseEntity<UserDto> charge(@RequestBody ChargeRequest chargeRequest) {
 
-        UserDto user = transactionFacade.charge(chargeRequest);
+        UserDto user = paymentFacade.charge(chargeRequest);
 
         return ResponseEntity.ok(user);
     }

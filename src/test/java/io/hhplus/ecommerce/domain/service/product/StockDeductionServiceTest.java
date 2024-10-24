@@ -3,7 +3,8 @@ package io.hhplus.ecommerce.domain.service.product;
 import io.hhplus.ecommerce.application.dto.order.OrderDetailDto;
 import io.hhplus.ecommerce.application.dto.order.OrderDto;
 import io.hhplus.ecommerce.application.dto.product.ProductDto;
-import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
+import io.hhplus.ecommerce.common.exception.ResourceNotFoundException;
+import io.hhplus.ecommerce.common.exception.StockInsufficientException;
 import io.hhplus.ecommerce.domain.entity.product.Product;
 import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +85,7 @@ class StockDeductionServiceTest {
     }
 
     @Test
-    @DisplayName("상품이 존재하지 않을 경우 ProductNotFoundException을 발생")
+    @DisplayName("상품이 존재하지 않을 경우 ResourceNotFoundException을 발생")
     void productNotFound() {
         // given
         List<Long> productIds = List.of(1L);
@@ -100,11 +101,11 @@ class StockDeductionServiceTest {
                 .build();
 
         // when & then
-        assertThrows(ProductNotFoundException.class, () -> stockDeductionService.stockDeduction(orderDto));
+        assertThrows(ResourceNotFoundException.class, () -> stockDeductionService.stockDeduction(orderDto));
     }
 
     @Test
-    @DisplayName("재고 차감 시 상품이 없을 경우 ProductNotFoundException 발생")
+    @DisplayName("재고 차감 시 상품이 없을 경우 ResourceNotFoundException 발생")
     void productMapNotFound() {
         // given
         Product product = new Product(1L, "Phone", BigDecimal.valueOf(1000), 10);
@@ -121,7 +122,28 @@ class StockDeductionServiceTest {
                 .build();
 
         // when & then
-        assertThrows(ProductNotFoundException.class, () -> stockDeductionService.stockDeduction(orderDto));
+        assertThrows(ResourceNotFoundException.class, () -> stockDeductionService.stockDeduction(orderDto));
+    }
+
+    @Test
+    @DisplayName("재고가 부족할 경우 StockInsufficientException 발생")
+    void stockNotFound() {
+        // given
+        Product product = new Product(1L, "Phone", BigDecimal.valueOf(1000), 0);
+        List<Long> productIds = List.of(1L);
+        when(productJpaRepository.findAllById(productIds)).thenReturn(List.of(product));
+
+        OrderDetailDto orderDetail = OrderDetailDto.builder()
+                .productId(1L)
+                .quantity(2)
+                .build();
+
+        OrderDto orderDto = OrderDto.builder()
+                .orderDetails(List.of(orderDetail))
+                .build();
+
+        // when & then
+        assertThrows(StockInsufficientException.class, () -> stockDeductionService.stockDeduction(orderDto));
     }
 
 }
