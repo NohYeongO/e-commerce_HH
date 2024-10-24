@@ -1,12 +1,13 @@
 package io.hhplus.ecommerce.domain.service.product;
 
-import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
+import io.hhplus.ecommerce.common.exception.ResourceNotFoundException;
 import io.hhplus.ecommerce.application.dto.product.ProductDto;
 import io.hhplus.ecommerce.domain.entity.product.Product;
 import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class FindProductServiceTest {
     @Mock
@@ -35,26 +36,7 @@ class FindProductServiceTest {
     }
 
     @Test
-    @DisplayName("성공적으로 상품 리스트를 조회하고, 반환된 상품 목록의 크기와 ID를 확인")
-    void productListSuccess() {
-        // given
-        Product product1 = new Product(1L, "phone", BigDecimal.valueOf(1000), 10);
-        Product product2 = new Product(2L, "Laptop", BigDecimal.valueOf(2000), 20);
-        List<Product> productList = List.of(product1, product2);
-        List<Long> productIdList = Arrays.asList(1L, 2L);
-        when(productJpaRepository.findAllById(productIdList)).thenReturn(productList);
-
-        // when
-        List<ProductDto> products = findProductService.getProducts(productIdList);
-
-        // then
-        assertThat(products).hasSize(2);
-        assertThat(products.get(0).getProductId()).isEqualTo(1L);
-        assertThat(products.get(1).getProductId()).isEqualTo(2L);
-    }
-
-    @Test
-    @DisplayName("단일 상품을 성공적으로 조회하고, 상품의 ID, 이름, 가격, 재고를 확인")
+    @DisplayName("단일 상품을 성공적으로 조회하고, 상품의 ID, 이름, 가격, 재고가 이상없이 조회되는지 테스트")
     void productSuccess() {
         // given
         Long productId = 1L;
@@ -77,30 +59,18 @@ class FindProductServiceTest {
     }
 
     @Test
-    @DisplayName("상품을 찾을 수 없을 때 ProductNotFoundException이 발생")
+    @DisplayName("상품을 찾을 수 없을 때 Exception 처리 테스트")
     void productNotFound() {
         // given
         Long productId = 1L;
-
         when(productJpaRepository.findById(productId)).thenReturn(Optional.empty());
-
         // when & then
-        assertThrows(ProductNotFoundException.class, () -> findProductService.getProduct(productId));
+        assertThrows(ResourceNotFoundException.class, () -> findProductService.getProduct(productId));
     }
 
-    @Test
-    @DisplayName("재고 수량이 0인 상품을 조회할 때, 해당 상품의 재고가 0임을 확인")
-    void stockZero() {
-        // given
-        Long productId = 1L;
-        Product product = new Product(1L, "phone", BigDecimal.valueOf(1000), 0);
-        when(productJpaRepository.findById(productId)).thenReturn(Optional.of(product));
-        // when & then
-        assertThat(product.getStock()).isEqualTo(0);
-    }
 
     @Test
-    @DisplayName("최근 3일간 판매된 상위 5개 상품을 조회하고, 올바른 결과가 반환")
+    @DisplayName("최근 3일간 판매된 상위 5개 상품을 조회하고, 결과가 이상없이 반환되는지 / 조건으로 들어갈 3일이 정확히 전달 되는지 테스트")
     void getTopFiveProductsWithDateConditionSuccess() {
         // Given: 가짜 Product 객체 목록 설정
         Product product1 = Product.builder()
@@ -150,7 +120,14 @@ class FindProductServiceTest {
         // 서비스 메소드 호출
         List<ProductDto> topProducts = findProductService.getTopFiveProducts();
 
-        // Then: 반환된 리스트의 크기와 각 상품의 정보를 검증
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(productJpaRepository, times(1)).findTop5Product(captor.capture());
+
+        // 캡쳐를 활용해 조건에 들어갈 3일을 잘 전달하는지 확인
+        LocalDateTime capturedDate = captor.getValue();
+        assertThat(capturedDate).isEqualTo(startDate);
+
+        // 반환된 리스트의 크기와 각 상품의 정보를 검증
         assertThat(topProducts).hasSize(5);  // 5개의 상품이 반환되었는지 확인
 
         // 상품들의 속성을 하나씩 검증
@@ -180,4 +157,17 @@ class FindProductServiceTest {
         assertThat(topProducts.get(4).getPrice()).isEqualTo(BigDecimal.valueOf(5000));
         assertThat(topProducts.get(4).getStock()).isEqualTo(50);
     }
+
+    @Test
+    @DisplayName("판매 상위 5개 제품 조회시 조회되는 데이터가 없을경우 예외처리 테스트")
+    void find_Top_Five_EmptyTest() {
+        // given
+        List<Product> topProducts = List.of();
+        // when
+        when(productJpaRepository.findTop5Product(LocalDate.now().minusDays(3).atStartOfDay())).thenReturn(topProducts);
+        // then
+        assertThrows(ResourceNotFoundException.class, () -> findProductService.getTopFiveProducts());
+    }
+
+
 }
