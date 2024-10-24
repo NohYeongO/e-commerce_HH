@@ -1,7 +1,7 @@
 package io.hhplus.ecommerce.common;
 
+import io.hhplus.ecommerce.common.exception.*;
 import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
-import io.hhplus.ecommerce.common.exception.user.UserChargeFailedException;
 import io.hhplus.ecommerce.common.exception.user.UserNotFoundException;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.ResponseEntity;
@@ -17,19 +17,29 @@ public class ApiControllerAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(500).body(new ErrorMessage(e.getMessage()));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleUserNotFoundException(UserNotFoundException e) {
-        return ResponseEntity.status(e.getStatus()).body(new ErrorMessage(e.getMessage()));
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorMessage> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
     }
 
-    @ExceptionHandler(UserChargeFailedException.class)
-    public ResponseEntity<ErrorMessage> handleUserChargeFailedException(UserChargeFailedException e) {
-        return ResponseEntity.status(500).body(new ErrorMessage(e.getMessage()));
+    @ExceptionHandler(OrderFailedException.class)
+    public ResponseEntity<ErrorMessage> handleOrderFailedException(OrderFailedException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleProductNotFoundException(ProductNotFoundException e) {
-        return ResponseEntity.status(e.getStatus()).body(new ErrorMessage(e.getMessage()));
+    @ExceptionHandler(PointInsufficientException.class)
+    public ResponseEntity<ErrorMessage> handlePointInsufficientException(PointInsufficientException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
+    }
+
+    @ExceptionHandler(StockInsufficientException.class)
+    public ResponseEntity<ErrorMessage> handleStockInsufficientException(StockInsufficientException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
+    }
+
+    @ExceptionHandler(ChargeFailedException.class)
+    public ResponseEntity<ErrorMessage> handleChargeFailedException(ChargeFailedException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(new ErrorMessage(e.getMessage()));
     }
 
 }
