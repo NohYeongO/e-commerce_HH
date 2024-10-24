@@ -3,7 +3,6 @@ package io.hhplus.ecommerce.domain.service.user;
 import io.hhplus.ecommerce.common.exception.user.UserNotFoundException;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
 import io.hhplus.ecommerce.domain.entity.user.User;
-import io.hhplus.ecommerce.domain.service.user.FindUserService;
 import io.hhplus.ecommerce.infra.user.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

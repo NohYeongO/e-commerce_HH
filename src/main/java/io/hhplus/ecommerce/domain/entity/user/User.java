@@ -1,6 +1,7 @@
 package io.hhplus.ecommerce.domain.entity.user;
 
-import io.hhplus.ecommerce.common.exception.product.ProductNotFoundException;
+import io.hhplus.ecommerce.common.exception.ErrorCode;
+import io.hhplus.ecommerce.common.exception.PointInsufficientException;
 import io.hhplus.ecommerce.domain.entity.cart.Cart;
 import io.hhplus.ecommerce.domain.entity.order.Order;
 import jakarta.persistence.*;
@@ -46,8 +47,8 @@ public class User {
     public void deduction(BigDecimal deductionPoint) {
         BigDecimal newPoint = this.point.subtract(deductionPoint);
 
-        if (newPoint.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+        if (newPoint.compareTo(deductionPoint) < 0) {
+            throw new PointInsufficientException(ErrorCode.POINTS_INSUFFICIENT);
         }
         this.point = newPoint;
     }

@@ -4,13 +4,10 @@ import io.hhplus.ecommerce.application.dto.order.OrderDetailDto;
 import io.hhplus.ecommerce.application.dto.order.OrderDto;
 import io.hhplus.ecommerce.application.dto.product.ProductDto;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
+import io.hhplus.ecommerce.common.exception.OrderFailedException;
 import io.hhplus.ecommerce.domain.entity.order.Order;
 import io.hhplus.ecommerce.domain.entity.order.OrderDetail;
-import io.hhplus.ecommerce.domain.entity.product.Product;
-import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.infra.order.OrderJpaRepository;
-import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
-import io.hhplus.ecommerce.infra.user.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,53 +15,56 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class OrderServiceTest {
     @Mock
-    private OrderJpaRepository orderJpaRepository;  // 목 객체
+    private OrderJpaRepository orderJpaRepository;
 
     @InjectMocks
-    private OrderService orderService;  // 테스트 대상 클래스
+    private OrderService orderService;
+
+    private UserDto userDto;
+    private ProductDto product1;
+    private ProductDto product2;
+    private List<OrderDetailDto> orderDetailDtoList;
+    private Order order;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);  // 목 객체 초기화
-    }
+        MockitoAnnotations.openMocks(this);
 
-    @Test
-    @DisplayName("주문 생성 및 총 가격 계산")
-    void orderPaymentSuccess() {
-        // given: UserDto와 OrderDetailDto 생성
-        UserDto userDto = UserDto.builder()
+        // UserDto 초기화
+        userDto = UserDto.builder()
                 .userId(1L)
                 .name("testUser")
                 .point(BigDecimal.valueOf(10000))
                 .build();
 
-        ProductDto product1 = ProductDto.builder()
+        // ProductDto 초기화
+        product1 = ProductDto.builder()
                 .productId(1L)
                 .name("Product 1")
                 .price(BigDecimal.valueOf(1000))
                 .build();
 
-        ProductDto product2 = ProductDto.builder()
+        product2 = ProductDto.builder()
                 .productId(2L)
                 .name("Product 2")
                 .price(BigDecimal.valueOf(2000))
                 .build();
 
+        // OrderDetailDto 리스트 초기화
         OrderDetailDto orderDetail1 = OrderDetailDto.builder()
                 .productDto(product1)
                 .quantity(2)
@@ -72,23 +72,27 @@ class OrderServiceTest {
 
         OrderDetailDto orderDetail2 = OrderDetailDto.builder()
                 .productDto(product2)
-                .quantity(1)
+                .quantity(3)
                 .build();
 
-        List<OrderDetailDto> orderDetailDtoList = Arrays.asList(orderDetail1, orderDetail2);
+        orderDetailDtoList = Arrays.asList(orderDetail1, orderDetail2);
 
-        // 예상 총 가격 계산
-        BigDecimal expectedTotalPrice = BigDecimal.valueOf(1000 * 2 + 2000 * 1);  // 4000
-
-        // Order 객체 생성
-        Order order = Order.builder()
+        // Order 객체 초기화
+        order = Order.builder()
                 .user(userDto.toEntity())
                 .orderDate(LocalDateTime.now())
                 .orderDetails(List.of(
                         OrderDetail.builder().product(product1.toEntity()).quantity(2).build(),
-                        OrderDetail.builder().product(product2.toEntity()).quantity(1).build()
+                        OrderDetail.builder().product(product2.toEntity()).quantity(3).build()
                 ))
                 .build();
+    }
+
+    @Test
+    @DisplayName("주문 생성 및 TotalPoint 차감 확인 테스트")
+    void orderPaymentSuccess() {
+        // given
+        BigDecimal expectedTotalPrice = BigDecimal.valueOf(1000 * 2 + 2000 * 3);  // 8000
 
         when(orderJpaRepository.save(any(Order.class))).thenReturn(order);
 
@@ -107,9 +111,32 @@ class OrderServiceTest {
         assertThat(savedOrder.getUser().getUserId()).isEqualTo(userDto.getUserId());
         assertThat(savedOrder.getOrderDetails()).hasSize(2);  // 두 개의 상세 주문
 
+        // 주문 상세 제품별 수량 검증
+        assertThat(savedOrder.getOrderDetails().get(0).getProduct().getProductId()).isEqualTo(product1.getProductId());
+        assertThat(savedOrder.getOrderDetails().get(0).getQuantity()).isEqualTo(2);
+
+        assertThat(savedOrder.getOrderDetails().get(1).getProduct().getProductId()).isEqualTo(product2.getProductId());
+        assertThat(savedOrder.getOrderDetails().get(1).getQuantity()).isEqualTo(3);
+
         // 반환된 OrderDto의 필드 검증
         assertThat(result.getOrderId()).isEqualTo(savedOrder.getOrderId());
         assertThat(result.getUserId()).isEqualTo(userDto.getUserId());
         assertThat(result.getOrderDetails()).hasSize(2);  // 주문 상세의 개수가 일치하는지
+    }
+
+    @Test
+    @DisplayName("DataIntegrityViolationException 확인 테스트")
+    void DataIntegrityViolationException_Test() {
+        when(orderJpaRepository.save(any(Order.class))).thenThrow(DataIntegrityViolationException.class);
+
+        assertThrows(OrderFailedException.class, () -> orderService.orderPayment(userDto, orderDetailDtoList));
+    }
+
+    @Test
+    @DisplayName("Exception 테스트")
+    void Test() {
+        when(orderJpaRepository.save(any(Order.class))).thenThrow(NullPointerException.class);
+        // then
+        assertThrows(OrderFailedException.class, () -> orderService.orderPayment(userDto, orderDetailDtoList));
     }
 }
