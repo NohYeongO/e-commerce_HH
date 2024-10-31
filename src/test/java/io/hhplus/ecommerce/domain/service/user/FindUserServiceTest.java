@@ -30,19 +30,6 @@ class FindUserServiceTest {
     }
 
     @Test
-    @DisplayName("회원조회시 조회 회원이 존재하지 않을 경우")
-    void userNotFound() {
-        // given
-        Long userId = 1L;
-        // when
-        when(userJpaRepository.findById(1L)).thenReturn(Optional.empty());
-        when(userJpaRepository.findByIdWithLock(1L)).thenReturn(Optional.empty());
-        // then
-        assertThrows(ResourceNotFoundException.class, () -> findUserService.getUser(userId, false));
-        assertThrows(ResourceNotFoundException.class, () -> findUserService.getUser(userId, true));
-    }
-
-    @Test
     @DisplayName("회원이 존재할 경우")
     void userFound() {
         // given
@@ -52,21 +39,14 @@ class FindUserServiceTest {
 
         User user = User.builder().userId(userId).name(name).point(point).build();
 
-        when(userJpaRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userJpaRepository.findByIdWithLock(userId)).thenReturn(Optional.of(user));
+        when(userJpaRepository.findByUserId(1L)).thenReturn(user);
 
         // when
-        UserDto findUser = findUserService.getUser(userId, false);
-        UserDto findLockUser = findUserService.getUser(userId, true);
+        UserDto findUser = findUserService.getUser(userId);
         // then
         assertEquals(userId, findUser.getUserId());
-        assertEquals(userId, findLockUser.getUserId());
-
         assertEquals(name, findUser.getName());
-        assertEquals(name, findLockUser.getName());
-
         assertEquals(point, findUser.getPoint());
-        assertEquals(point, findLockUser.getPoint());
     }
 
 }

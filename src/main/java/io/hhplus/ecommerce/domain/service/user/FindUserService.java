@@ -16,24 +16,15 @@ public class FindUserService {
     private static final Logger log = LoggerFactory.getLogger(FindUserService.class);
     private final UserJpaRepository userJpaRepository;
 
+
     /**
      * 회원 조회
      */
-    public UserDto getUser(Long userId, boolean locked) {
-        User user;
-        if(locked){
-            // Lock이 필요할 경우
-            user = userJpaRepository.findByIdWithLock(userId).orElseThrow(() -> {
-                        log.error("get User Not Found : userId={}", userId);
-                        throw new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND);
-                    });
-        } else{
-            // 단순 회원 조회 시
-            user = userJpaRepository.findById(userId).orElseThrow(() -> {
-                        log.error("get User Not Found : userId={}", userId);
-                        throw new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND);
-                    });
-        }
+    public UserDto getUser(Long userId) {
+        User user = userJpaRepository.findByUserId(userId);
+
+        log.info("제발 조히좀 돼라: {}", user.getUserId());
+
         return UserDto.builder()
                 .userId(user.getUserId())
                 .name(user.getName())

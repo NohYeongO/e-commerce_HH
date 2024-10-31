@@ -23,8 +23,8 @@ public class CartFacade {
     @Transactional
     public void addCart(CartDto cartDto) {
         // 회원 조회 및 장바구니 상품 추가 로직
-        UserDto user = findUserService.getUser(cartDto.getUserId(), false);
-        CartDto cart = CartDto.builder().user(user).products(cartDto.getProducts()).build(); // UserDto 설정
+        UserDto user = findUserService.getUser(cartDto.getUserId());
+        CartDto cart = CartDto.builder().user(user).products(cartDto.getProducts()).build();
         updateCartService.addCart(cart);
     }
 
@@ -37,7 +37,7 @@ public class CartFacade {
     // 장바구니 조회
     public List<CartDto> getCartItems(Long userId) {
         // 사용자 조회 후 장바구니 조회
-        UserDto user = findUserService.getUser(userId, false);
+        UserDto user = findUserService.getUser(userId);
         return findCartService.getCartItems(user);
     }
 }

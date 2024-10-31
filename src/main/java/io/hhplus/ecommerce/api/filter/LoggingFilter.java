@@ -1,4 +1,4 @@
-package io.hhplus.ecommerce.common.filter;
+package io.hhplus.ecommerce.api.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

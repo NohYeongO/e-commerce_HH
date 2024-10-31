@@ -1,18 +1,12 @@
 package io.hhplus.ecommerce.common.config;
 
-import io.hhplus.ecommerce.common.filter.LoggingFilter;
+import io.hhplus.ecommerce.api.filter.LoggingFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class Config {
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+public class FilterConfig {
 
     @Bean
     public FilterRegistrationBean<LoggingFilter> loggingFilter() {
@@ -22,4 +16,5 @@ public class Config {
         filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
     }
+
 }

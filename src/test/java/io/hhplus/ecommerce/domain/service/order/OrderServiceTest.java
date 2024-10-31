@@ -117,7 +117,7 @@ class OrderServiceTest {
 
         assertThat(savedOrder.getOrderDetails().get(1).getProduct().getProductId()).isEqualTo(product2.getProductId());
         assertThat(savedOrder.getOrderDetails().get(1).getQuantity()).isEqualTo(3);
-
+        
         // 반환된 OrderDto의 필드 검증
         assertThat(result.getOrderId()).isEqualTo(savedOrder.getOrderId());
         assertThat(result.getUserId()).isEqualTo(userDto.getUserId());

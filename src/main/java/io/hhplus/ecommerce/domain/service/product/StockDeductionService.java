@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,43 +22,26 @@ public class StockDeductionService {
     private final ProductJpaRepository productJpaRepository;
 
     public List<OrderDetailDto> stockDeduction(OrderDto ordersDto) {
-
-        // 주문 상품 아이디
-        List<Long> productIds = ordersDto.getOrderDetails().stream().map(OrderDetailDto::getProductId).toList();
-        // 상품 조회
-        List<Product> products = productJpaRepository.findAllById(productIds);
-
-        // 조회된 상품 수와 요청한 ProductID 수가 다르면 예외 발생
-        if (products.size() != productIds.size()) {
-            log.error("Product ID mismatch. RequestProduct: {}, DBProduct: {}", productIds.size(), products.size());
-            throw new ResourceNotFoundException(ErrorCode.PRODUCT_INCOMPLETE_RESULTS);
-        }
+        // 상세주문 내역을 저장할 리스트
         List<OrderDetail> orderDetailList = new ArrayList<>();
 
-        // productId를 키로 갖는 Product Map 생성
-        Map<Long, Product> productMap = products.stream().collect(Collectors.toMap(Product::getProductId, product -> product));
-
         for(OrderDetailDto orderDetail : ordersDto.getOrderDetails()) {
-
-            Product product = productMap.get(orderDetail.getProductId());
-
-            if (product == null) {
-                log.error("Product not found for ID: {}", orderDetail.getProductId());
-                throw new ResourceNotFoundException(ErrorCode.PRODUCT_INCOMPLETE_RESULTS);
-            }
-            // 재고 수량 차감
+            // 상품조회 비관적락 적용
+            Product product = productJpaRepository.findByIdWithLock(orderDetail.getProductId()).orElseThrow(() -> {
+                log.error("Product Not Found: {}", orderDetail.getProductId());
+                return new ResourceNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+            });
+            // 재고차감
             product.deduction(orderDetail.getQuantity());
-
+            // 상세주문내역 생성
             OrderDetail Detail = OrderDetail.builder()
                     .product(product)
                     .quantity(orderDetail.getQuantity())
                     .build();
 
+            // 상세주문내역리스트에 저장
             orderDetailList.add(Detail);
         }
         return orderDetailList.stream().map(OrderDetailDto::toDto).toList();
     }
-
-
-
 }
