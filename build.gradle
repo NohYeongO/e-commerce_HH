@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'application' // application 플러그인 추가
 }
 
 group = 'io.hhplus'
@@ -23,6 +24,10 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = 'io.hhplus.ecommerce.EcommerceApplication'
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -36,12 +41,14 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:1.20.3"
     testImplementation "org.testcontainers:mysql:1.20.3"
     testImplementation "org.testcontainers:junit-jupiter:1.20.3"
+    implementation 'org.redisson:redisson-spring-boot-starter:3.16.2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 test {
     testLogging {
         events "passed", "skipped", "failed"
-        showStandardStreams = true  // System.out.println() 등의 출력 보이기
+        showStandardStreams = true
     }
 }
 
