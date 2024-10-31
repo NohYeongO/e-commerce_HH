@@ -20,7 +20,7 @@ public class DataPlatform {
     }
 
     public void sendOrderData(OrderDto orderDto) {
-        String dataPlatformUrl = "https://dataplatform.example.com/api/orders";
+        String dataPlatformUrl = "http://localhost:4000/api/orders";
 
         HttpHeaders headers = new HttpHeaders();
 

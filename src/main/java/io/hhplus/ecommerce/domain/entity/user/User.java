@@ -4,11 +4,14 @@ import io.hhplus.ecommerce.common.exception.ErrorCode;
 import io.hhplus.ecommerce.common.exception.PointInsufficientException;
 import io.hhplus.ecommerce.domain.entity.cart.Cart;
 import io.hhplus.ecommerce.domain.entity.order.Order;
+import io.hhplus.ecommerce.domain.service.product.StockDeductionService;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,11 +46,12 @@ public class User {
         this.name = name;
         this.point = point;
     }
-
+    private static final Logger log = LoggerFactory.getLogger(User.class);
     public void deduction(BigDecimal deductionPoint) {
         BigDecimal newPoint = this.point.subtract(deductionPoint);
 
-        if (newPoint.compareTo(deductionPoint) < 0) {
+        if (newPoint.compareTo(BigDecimal.ZERO) < 0) {
+            log.error("newPoint: {}, deductionPoint:{}", newPoint, deductionPoint);
             throw new PointInsufficientException(ErrorCode.POINTS_INSUFFICIENT);
         }
         this.point = newPoint;

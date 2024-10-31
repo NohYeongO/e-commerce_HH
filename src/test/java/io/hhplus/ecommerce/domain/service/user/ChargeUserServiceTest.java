@@ -1,7 +1,9 @@
 package io.hhplus.ecommerce.domain.service.user;
 
+import io.hhplus.ecommerce.api.request.ChargeRequest;
 import io.hhplus.ecommerce.common.exception.ChargeFailedException;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
+import io.hhplus.ecommerce.common.exception.ResourceNotFoundException;
 import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.infra.user.UserJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,42 +35,24 @@ class ChargeUserServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    @DisplayName("충전이 성공했을 경우")
-    void chargeSuccess() {
-        // given
-        Long userId = 1L;
-        String name = "test";
-        BigDecimal point = BigDecimal.valueOf(1000.00);
-        UserDto user = UserDto.builder().userId(userId).name(name).point(point).build();
-
-        when(userJpaRepository.save(any(User.class))).thenReturn(user.toEntity());
-
-        // when
-        UserDto userDto = chargeUserService.charge(user, point);
-
-        // then
-        assertNotNull(userDto);
-        assertEquals(user.getUserId(), userDto.getUserId());
-        assertEquals(user.getName(), userDto.getName());
-        assertEquals(user.getPoint(), userDto.getPoint());
-    }
 
     @Test
-    @DisplayName("충전 중 데이터 오류 발생시")
-    void chargeDataExceptionFail() {
+    @DisplayName("충전금액이 잘 충전되는지 테스트")
+    void chargeTest() {
         // given
         Long userId = 1L;
-        String name = "test";
-        BigDecimal point = BigDecimal.valueOf(1000.00);
-        UserDto user = UserDto.builder().userId(userId).name(name).point(point).build();
-        // when
-        when(userJpaRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("무결성 제약 오류"));
-        // then
-        assertThrows(ChargeFailedException.class, () -> {
-            chargeUserService.charge(user, point);
-        });
-    }
+        BigDecimal point = BigDecimal.valueOf(10000);
+        ChargeRequest chargeRequest = new ChargeRequest(userId, point);
 
+        BigDecimal mockPoint = BigDecimal.valueOf(30000);
+        User mockUser = User.builder().userId(userId).name("test").point(mockPoint).build();
+
+        // when
+        when(userJpaRepository.findByUserId(userId)).thenReturn(mockUser);
+        UserDto responseUser = chargeUserService.charge(chargeRequest);
+        // then
+        // 충전금액이 잘 충전됐는지 테스트
+        assertEquals(responseUser.getPoint(), point.add(mockPoint));
+    }
 
 }

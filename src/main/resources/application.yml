@@ -11,6 +11,9 @@ spring:
   config:
     activate:
       on-profile: ecommerce
+redis:
+  host: localhost
+  port: 6379
 server:
   port: 8080
 
@@ -31,6 +34,9 @@ server:
       hibernate:
         format_sql: true
         use_sql_comments: true
+
+---
+
 
 logging:
   level:
