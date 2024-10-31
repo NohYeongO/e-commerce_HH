@@ -23,7 +23,9 @@ public class FindUserService {
     public UserDto getUser(Long userId) {
         User user = userJpaRepository.findByUserId(userId);
 
-        log.info("제발 조히좀 돼라: {}", user.getUserId());
+        if(user == null) {
+            throw new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND);
+        }
 
         return UserDto.builder()
                 .userId(user.getUserId())
