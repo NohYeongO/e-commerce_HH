@@ -3,12 +3,13 @@ package io.hhplus.ecommerce.support;
 import io.hhplus.ecommerce.application.facade.CartFacade;
 import io.hhplus.ecommerce.application.facade.PaymentFacade;
 import io.hhplus.ecommerce.application.facade.ProductFacade;
-import io.hhplus.ecommerce.application.service.OrderLockService;
+import io.hhplus.ecommerce.domain.entity.product.Product;
+import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.domain.service.cart.FindCartService;
 import io.hhplus.ecommerce.domain.service.cart.UpdateCartService;
 import io.hhplus.ecommerce.domain.service.order.OrderService;
 import io.hhplus.ecommerce.domain.service.product.FindProductService;
-import io.hhplus.ecommerce.domain.service.product.StockDeductionService;
+import io.hhplus.ecommerce.domain.service.product.ProductStockService;
 import io.hhplus.ecommerce.domain.service.user.ChargeUserService;
 import io.hhplus.ecommerce.domain.service.user.FindUserService;
 import io.hhplus.ecommerce.domain.service.user.PriceDeductionService;
@@ -16,12 +17,17 @@ import io.hhplus.ecommerce.infra.cart.CartJpaRepository;
 import io.hhplus.ecommerce.infra.order.OrderJpaRepository;
 import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
 import io.hhplus.ecommerce.infra.user.UserJpaRepository;
+import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -29,10 +35,15 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
 public abstract class IntegrationTestSupport {
+
+    private static final Logger log = LoggerFactory.getLogger(IntegrationTestSupport.class);
 
     @Container
     public static MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.0")
@@ -58,58 +69,63 @@ public abstract class IntegrationTestSupport {
     }
 
     @Autowired
-    public CartFacade cartFacade;
+    protected CartFacade cartFacade;
 
     @Autowired
-    public PaymentFacade paymentFacade;
+    protected PaymentFacade paymentFacade;
 
     @Autowired
-    public ProductFacade productFacade;
+    protected ProductFacade productFacade;
 
     @Autowired
-    public OrderLockService orderLockService;
+    protected FindCartService findCartService;
 
     @Autowired
-    public FindCartService findCartService;
+    protected UpdateCartService updateCartService;
 
     @Autowired
-    public UpdateCartService updateCartService;
+    protected OrderService orderService;
 
     @Autowired
-    public OrderService orderService;
+    protected FindProductService findProductService;
 
     @Autowired
-    public FindProductService findProductService;
+    protected ProductStockService productStockService;
 
     @Autowired
-    public StockDeductionService stockDeductionService;
+    protected ChargeUserService chargeUserService;
 
     @Autowired
-    public ChargeUserService chargeUserService;
+    protected FindUserService findUserService;
 
     @Autowired
-    public FindUserService findUserService;
+    protected PriceDeductionService priceDeductionService;
 
     @Autowired
-    public PriceDeductionService priceDeductionService;
+    protected ProductJpaRepository productJpaRepository;
 
     @Autowired
-    public ProductJpaRepository productJpaRepository;
+    protected OrderJpaRepository orderJpaRepository;
 
     @Autowired
-    public OrderJpaRepository orderJpaRepository;
+    protected CartJpaRepository cartJpaRepository;
 
     @Autowired
-    public CartJpaRepository cartJpaRepository;
+    protected UserJpaRepository userJpaRepository;
 
-    @Autowired
-    public UserJpaRepository userJpaRepository;
+    @BeforeEach
+    void setUp() {
+        orderJpaRepository.deleteAll();
+        cartJpaRepository.deleteAll();
+        productJpaRepository.deleteAll();
+        userJpaRepository.deleteAll();
+    }
 
     @AfterEach
     void tearDown() {
-        productJpaRepository.deleteAll();
         orderJpaRepository.deleteAll();
         cartJpaRepository.deleteAll();
+        productJpaRepository.deleteAll();
         userJpaRepository.deleteAll();
     }
 }

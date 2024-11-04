@@ -1,5 +1,6 @@
 package io.hhplus.ecommerce.application.dto.order;
 
+import io.hhplus.ecommerce.application.dto.user.UserDto;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ public class OrderDto {
     private Long userId;
     private List<OrderDetailDto> orderDetails;
     private LocalDateTime orderDate;
+    private UserDto user;
 
     private BigDecimal totalPrice;
 }

@@ -26,9 +26,8 @@ public class ChargeUserService {
      */
     @Transactional
     public UserDto charge(ChargeRequest request) {
-        User user = userJpaRepository.findByUserId(request.getUserId());
-
-        if(user == null) throw new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND);
+        User user = userJpaRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.USER_NOT_FOUND));
 
         user.addPoint(request.getPoint());
 

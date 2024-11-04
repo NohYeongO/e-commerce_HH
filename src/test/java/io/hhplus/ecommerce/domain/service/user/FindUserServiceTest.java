@@ -39,7 +39,7 @@ class FindUserServiceTest {
 
         User user = User.builder().userId(userId).name(name).point(point).build();
 
-        when(userJpaRepository.findByUserId(1L)).thenReturn(user);
+        when(userJpaRepository.findByUserId(1L)).thenReturn(Optional.ofNullable(user));
 
         // when
         UserDto findUser = findUserService.getUser(userId);

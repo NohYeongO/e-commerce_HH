@@ -25,7 +25,6 @@ public class ProductFacade {
         return findProductService.getProduct(productId);
     }
 
-
     /**
      * 가장 많이 팔린 상품 5개 조회
      */

@@ -48,7 +48,7 @@ class ChargeUserServiceTest {
         User mockUser = User.builder().userId(userId).name("test").point(mockPoint).build();
 
         // when
-        when(userJpaRepository.findByUserId(userId)).thenReturn(mockUser);
+        when(userJpaRepository.findByUserId(userId)).thenReturn(Optional.ofNullable(mockUser));
         UserDto responseUser = chargeUserService.charge(chargeRequest);
         // then
         // 충전금액이 잘 충전됐는지 테스트
