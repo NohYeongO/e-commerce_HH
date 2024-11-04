@@ -4,13 +4,14 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/testdb  # 기본값으로 로컬 MySQL 설정, Testcontainers에서 덮어씀
+    url: jdbc:mysql://localhost:3306/testdb
     username: testuser
     password: testpass
 
+
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -24,6 +25,6 @@ redis:
 
 logging:
   level:
-    org.hibernate:
-      type:
-        descriptor.sql: trace
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.springframework.orm.jpa: debug
