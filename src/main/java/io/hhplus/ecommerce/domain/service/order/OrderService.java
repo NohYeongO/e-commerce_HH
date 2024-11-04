@@ -9,13 +9,12 @@ import io.hhplus.ecommerce.domain.entity.order.Order;
 import io.hhplus.ecommerce.domain.entity.order.OrderDetail;
 import io.hhplus.ecommerce.domain.entity.user.User;
 import io.hhplus.ecommerce.infra.order.OrderJpaRepository;
-import io.hhplus.ecommerce.infra.product.ProductJpaRepository;
-import io.hhplus.ecommerce.infra.user.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,6 +28,7 @@ public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderJpaRepository orderJpaRepository;
 
+    @Transactional
     public OrderDto orderPayment(UserDto userDto, List<OrderDetailDto> orderDetailDtoList) {
 
         User user = userDto.toEntity();
@@ -36,7 +36,7 @@ public class OrderService {
         BigDecimal totalPrice = orderDetailDtoList.stream()
                 .map(detail -> detail.getProductDto().getPrice().multiply(new BigDecimal(detail.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+        // 주문 생성
         Order order = Order.builder()
                 .user(user)
                 .orderDate(LocalDateTime.now())
@@ -45,7 +45,6 @@ public class OrderService {
                         .quantity(detail.getQuantity()).build()).toList()
                 )
                 .build();
-
         try {
             // 데이터베이스에 저장
             Order savedOrder = orderJpaRepository.save(order);
