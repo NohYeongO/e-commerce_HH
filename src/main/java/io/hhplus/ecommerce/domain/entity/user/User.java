@@ -4,7 +4,6 @@ import io.hhplus.ecommerce.common.exception.ErrorCode;
 import io.hhplus.ecommerce.common.exception.PointInsufficientException;
 import io.hhplus.ecommerce.domain.entity.cart.Cart;
 import io.hhplus.ecommerce.domain.entity.order.Order;
-import io.hhplus.ecommerce.domain.service.product.StockDeductionService;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
