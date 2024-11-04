@@ -5,6 +5,7 @@ import io.hhplus.ecommerce.application.dto.order.OrderDto;
 import io.hhplus.ecommerce.application.dto.user.UserDto;
 import io.hhplus.ecommerce.common.exception.ErrorCode;
 import io.hhplus.ecommerce.common.exception.OrderFailedException;
+import io.hhplus.ecommerce.common.exception.PointInsufficientException;
 import io.hhplus.ecommerce.domain.entity.order.Order;
 import io.hhplus.ecommerce.domain.entity.order.OrderDetail;
 import io.hhplus.ecommerce.domain.entity.user.User;
@@ -48,9 +49,12 @@ public class OrderService {
         try {
             // 데이터베이스에 저장
             Order savedOrder = orderJpaRepository.save(order);
+            // 잔고 차감
+            user.deduction(totalPrice);
             // 저장 성공 후 결과 반환
             return OrderDto.builder()
                     .orderId(savedOrder.getOrderId())
+                    .user(UserDto.toDto(user))
                     .userId(user.getUserId())
                     .orderDetails(savedOrder.getOrderDetails().stream()
                             .map(od -> OrderDetailDto.builder()
@@ -65,9 +69,13 @@ public class OrderService {
         } catch (DataIntegrityViolationException e) {
             log.error("Order DataIntegrityViolationException: {}", e.getMessage());
             throw new OrderFailedException(ErrorCode.DATA_INTEGRITY_VIOLATION);
+        } catch(PointInsufficientException e){
+            log.error("PointInsufficientException: {}", e.getMessage());
+            throw new OrderFailedException(ErrorCode.POINT_DEDUCTION_FAILED);
         } catch (Exception e) {
             log.error("Order Exception: {}", e.getMessage());
             throw new OrderFailedException(ErrorCode.ORDER_FAILED);
         }
     }
+
 }

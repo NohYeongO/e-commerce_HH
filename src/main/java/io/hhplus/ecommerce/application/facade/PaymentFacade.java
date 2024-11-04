@@ -76,7 +76,7 @@ public class PaymentFacade {
             orderDetails = productStockService.stockDeduction(orderDto);
             UserDto user = findUserService.getUser(orderDto.getUserId());
             responseOrder = orderService.orderPayment(user, orderDetails);
-            priceDeductionService.priceDeduction(user, responseOrder.getTotalPrice());
+            priceDeductionService.priceDeductionSave(responseOrder.getUser());
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

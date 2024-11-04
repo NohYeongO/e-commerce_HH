@@ -20,12 +20,11 @@ public class PriceDeductionService {
     private static final Logger log = LoggerFactory.getLogger(PriceDeductionService.class);
     private final UserJpaRepository userJpaRepository;
 
-    // 잔고차감
+    // 잔고차감데이터 저장
     @Transactional
-    public void priceDeduction(UserDto userDto, BigDecimal price) {
+    public void priceDeductionSave(UserDto userDto) {
         try{
             User user = userDto.toEntity();
-            user.deduction(price);
             userJpaRepository.save(user);
         }catch (DataIntegrityViolationException e){
             log.error("price Deduction DB Error: {}", e.getMessage());
