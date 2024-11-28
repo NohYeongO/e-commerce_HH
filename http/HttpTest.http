@@ -1,0 +1,30 @@
+### 상위 5개 상품 조회
+GET http://localhost:8080/product/top5
+Content-Type: application/json
+
+### 잔액 충전
+POST http://localhost:8080/user/charge
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "point": 5000
+}
+
+### 특정 상품 조회
+GET http://localhost:8080/product/123
+Content-Type: application/json
+
+
+### 상품 주문
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "orderDetails": [
+    { "productId": 123, "quantity": 2 },
+    { "productId": 456, "quantity": 1 }
+  ]
+}
+
