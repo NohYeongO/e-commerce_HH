@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,18 +53,19 @@ public class FindProductService {
      * 최근 3일간 판매 상위 5개 상품을 캐시에서 조회하고, 없으면 DB에서 조회 후 캐시에 저장
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "topProductsCache", key = "'topfiveproduct'")
+    @Cacheable(value = "top5ProductsCache", key = "'topfiveproduct'")
     public List<ProductDto> getTopFiveProducts() {
         // DB에서 최근 3일간의 상위 5개 상품 조회
         LocalDateTime startDate = LocalDate.now().minusDays(3).atStartOfDay();
-        List<Product> topProducts = productJpaRepository.findTop5Product(startDate);
+        Page<Product> topProducts = productJpaRepository.findTop5Product(startDate, PageRequest.of(0, 5));
+        List<Product> top5Products = topProducts.getContent();
 
-        if (topProducts.isEmpty()) {
+        if (top5Products.isEmpty()) {
             log.warn("No top products found in the last 3 days");
             return Collections.emptyList();
         }
 
-        return topProducts.stream()
+        return top5Products.stream()
                 .map(product -> ProductDto.builder()
                         .productId(product.getProductId())
                         .name(product.getName())
@@ -77,17 +80,18 @@ public class FindProductService {
      */
     @Transactional(readOnly = true)
     @Scheduled(cron = "0 0 0 * * *")  // 매일 자정 00시에 실행
-    @CachePut(value = "topProductsCache", key = "'topfiveproduct'")
+    @CachePut(value = "top5ProductsCache", key = "'topfiveproduct'")
     public List<ProductDto> cacheTopFiveProducts() {
         LocalDateTime startDate = LocalDate.now().minusDays(3).atStartOfDay();
-        List<Product> topProducts = productJpaRepository.findTop5Product(startDate);
+        Page<Product> topProducts = productJpaRepository.findTop5Product(startDate, PageRequest.of(0, 5));
+        List<Product> top5Products = topProducts.getContent();
 
-        if (topProducts.isEmpty()) {
+        if (top5Products.isEmpty()) {
             log.warn("No top products found in the last 3 days for cache update");
             return Collections.emptyList();
         }
 
-        return topProducts.stream()
+        return top5Products.stream()
                 .map(product -> ProductDto.builder()
                         .productId(product.getProductId())
                         .name(product.getName())
@@ -96,4 +100,6 @@ public class FindProductService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
 }

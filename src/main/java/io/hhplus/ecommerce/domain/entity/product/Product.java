@@ -10,7 +10,8 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "PRODUCT")
+@Table(name = "PRODUCT",
+        indexes = @Index(name = "idx_product_id", columnList = "productId"))
 public class Product {
 
     @Id

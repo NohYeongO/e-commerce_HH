@@ -2,6 +2,8 @@ package io.hhplus.ecommerce.infra.product;
 
 import io.hhplus.ecommerce.domain.entity.product.Product;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -30,5 +32,5 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
             "WHERE o.orderDate BETWEEN :startDate AND CURRENT_DATE " +
             "GROUP BY p.productId " +
             "ORDER BY SUM(od.quantity) DESC")
-    List<Product> findTop5Product(LocalDateTime startDate);
+    Page<Product> findTop5Product(LocalDateTime startDate, Pageable pageable);
 }
